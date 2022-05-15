@@ -9,6 +9,8 @@ namespace BallisticMotion
     {
         private double maxY;
         private double L;
+        private double t;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -19,8 +21,8 @@ namespace BallisticMotion
         {
             GraphPane pane = zedGraphControl1.GraphPane;
             pane.CurveList.Clear();
-            pane.XAxis.Title.Text = "S";
-            pane.YAxis.Title.Text = "Y";
+            pane.XAxis.Title.Text = "Расстояние, м";
+            pane.YAxis.Title.Text = "Высота, м";
             pane.Title.Text = "Траектория движения";
             pane.XAxis.Scale.MinAuto = true;
             pane.XAxis.Scale.Max = 300;
@@ -38,9 +40,11 @@ namespace BallisticMotion
 
             LineItem line = pane.AddCurve("Траектория", CalculatePoints(), Color.Blue, SymbolType.None);
             zedGraphControl1.Invalidate();
+            
+            label3.Text = "Максимальная высота: " + Math.Round(maxY,1) + "м";
+            label4.Text = "Дальность полёта: " + Math.Round(L,1) + "м";
+            label5.Text = "Время полёта: " + Math.Round(t, 1) + "с";
 
-            label3.Text = "Максимальная высота:" + Math.Round(maxY,1);
-            label4.Text = "Дальность полёта:" + Math.Round(L,1);
         }
 
         private PointPairList CalculatePoints()
@@ -60,7 +64,7 @@ namespace BallisticMotion
             double x, y;
             ang = ang * Math.PI / 180;
 
-            double t = (2 * V * Math.Sin(ang)) / g;
+            t = (2 * V * Math.Sin(ang)) / g;
 
             L = V * V * Math.Sin(ang * 2) / g;
             maxY = V * V * Math.Pow(Math.Sin(ang), 2) / (2 * g);
@@ -96,10 +100,13 @@ namespace BallisticMotion
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if (textBox2.Text == "" || Convert.ToInt64(textBox2.Text) < 90)
-                DrawGraph();
+            if (textBox2.Text != "" && Convert.ToInt64(textBox2.Text) >= 90)
+                MessageBox.Show("Угол должен быть меньше 90 градусов!", "Внимание!");
+            else if (textBox1.Text != "" && Convert.ToInt64(textBox1.Text) >= 500)
+                MessageBox.Show("Скорость должна быть меньше 500 метров в секунду!", "Внимание!");
             else
-                MessageBox.Show("Угол должен быть меньше 90 градусов!","Внимание!");
+                DrawGraph();
+
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -110,6 +117,21 @@ namespace BallisticMotion
             pane.XAxis.Scale.MaxAuto = true;
             pane.YAxis.Scale.MinAuto = true;
             pane.YAxis.Scale.MaxAuto = true;
+
+            zedGraphControl1.AxisChange();
+
+            if (pane.XAxis.Scale.Max > pane.YAxis.Scale.Max)
+            {
+                pane.YAxis.Scale.Max = pane.XAxis.Scale.Max / 3;
+                pane.YAxis.Scale.Min = pane.XAxis.Scale.Min;
+//                pane.YAxis.Scale.MajorStep = pane.XAxis.Scale.MajorStep;
+            }
+            else
+            {
+                pane.XAxis.Scale.Max = pane.YAxis.Scale.Max * 3;
+                pane.XAxis.Scale.Min = pane.YAxis.Scale.Min;
+                pane.XAxis.Scale.MajorStep = pane.YAxis.Scale.MajorStep;
+            }
 
             zedGraphControl1.AxisChange();
             zedGraphControl1.Invalidate();
