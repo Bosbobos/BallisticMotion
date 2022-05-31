@@ -11,40 +11,12 @@ namespace BallisticMotion
         private double L;
         private double t;
 
+        ProgramLogic programLogic = new ProgramLogic();
+
         public MainWindow()
         {
             InitializeComponent();
-            SetupGraph();  
-        }
-
-        private void SetupGraph()
-        {
-            GraphPane pane = zedGraphControl1.GraphPane;
-            pane.CurveList.Clear();
-            pane.XAxis.Title.Text = "Расстояние, м";
-            pane.YAxis.Title.Text = "Высота, м";
-            pane.Title.Text = "Траектория движения";
-            pane.XAxis.Scale.MinAuto = true;
-            pane.XAxis.Scale.Max = 300;
-            pane.YAxis.Scale.MinAuto = true;
-            pane.YAxis.Scale.Max = 100;
-
-            zedGraphControl1.AxisChange();
-            zedGraphControl1.Invalidate();
-        }
-
-        private void DrawGraph()
-        {
-            GraphPane pane = zedGraphControl1.GraphPane;
-            pane.CurveList.Clear();
-
-            LineItem line = pane.AddCurve("Траектория", CalculatePoints(), Color.Blue, SymbolType.None);
-            zedGraphControl1.Invalidate();
-            
-            label3.Text = "Максимальная высота: " + Math.Round(maxY,1) + "м";
-            label4.Text = "Дальность полёта: " + Math.Round(L,1) + "м";
-            label5.Text = "Время полёта: " + Math.Round(t, 1) + "с";
-
+            programLogic.SetupGraph(zedGraphControl1);  
         }
 
         private PointPairList CalculatePoints()
@@ -105,8 +77,7 @@ namespace BallisticMotion
             else if (textBox1.Text != "" && Convert.ToInt64(textBox1.Text) >= 500)
                 MessageBox.Show("Скорость должна быть меньше 500 метров в секунду!", "Внимание!");
             else
-                DrawGraph();
-
+                programLogic.DrawGraph(zedGraphControl1,label3,label4,label5);            
         }
 
         private void button2_Click(object sender, EventArgs e)
